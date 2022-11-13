@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./db:/var/lib/postgresgl/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - service-network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=balance_service_db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
+  balance-service:
+    depends_on:
+      - db
+    restart: unless-stopped
+    build: "./"
+    networks:
+      - service-network
+    ports:
+      - 7000:7000
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
+networks:
+  service-network:
